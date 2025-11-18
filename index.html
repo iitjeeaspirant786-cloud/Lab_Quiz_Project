@@ -1,0 +1,3134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- meta -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edura — Code MCQs</title>
+    <meta
+      name="description"
+      content="A professional, responsive desktop quiz with language-specific coding MCQs, themes, timer, leaderboard, and ambient focus music."
+    />
+    <meta name="theme-color" content="#00e5ff" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0b0f14;
+        --desk: #0d1117;
+        --panel: #0f1520;
+        --glass: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.02)
+        );
+        --text: #e6f2ff;
+        --muted: #9fb3c8;
+        --accent: #00e5ff;
+        --accent-2: #00ffa3;
+        --ok: #35f3a3;
+        --warn: #ffd166;
+        --danger: #ff5876;
+        --border: rgba(255, 255, 255, 0.12);
+        --focus: 0 0 0 3px rgba(0, 229, 255, 0.28);
+        --radius: 16px;
+        --shadow-lg: 0 30px 60px rgba(0, 0, 0, 0.45);
+        --bar: linear-gradient(90deg, #00e5ff, #00ffa3);
+        --opt-bg: rgba(10, 14, 20, 0.85);
+        --opt-bg-hover: rgba(16, 22, 32, 0.95);
+        --opt-bg-correct: rgba(6, 24, 18, 0.75);
+        --opt-bg-wrong: rgba(32, 10, 16, 0.75);
+        --select-bg: rgba(10, 14, 20, 0.8);
+      }
+      .timer-line {
+        height: 6px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        margin: -10px 0 6px;
+        overflow: hidden;
+      }
+      .timer-line #timerLineFill {
+        height: 100%;
+        width: 100%;
+        background: #35f3a3;
+        transition: width 0.5s linear, background-color 0.5s linear;
+      }
+
+      .theme-neon {
+        --panel: #0f1520;
+        --text: #e6f2ff;
+        --muted: #9fb3c8;
+        --accent: #00e5ff;
+        --accent-2: #00ffa3;
+        --bar: linear-gradient(90deg, #00e5ff, #00ffa3);
+      }
+      .theme-aurora {
+        --accent: #89f7fe;
+        --accent-2: #66ffb2;
+        --bar: linear-gradient(90deg, #89f7fe, #b388ff, #66ffb2);
+        --panel: #101624;
+        --text: #f2f7ff;
+        --muted: #a9bbd0;
+      }
+      .theme-inferno {
+        --accent: #ff7a3d;
+        --accent-2: #ffd166;
+        --bar: linear-gradient(90deg, #ff7a3d, #ff3d99, #ffd166);
+        --panel: #14131a;
+        --text: #ffeef6;
+        --muted: #ffcfdf;
+      }
+      .theme-ocean {
+        --accent: #27e0ff;
+        --accent-2: #00bcd4;
+        --bar: linear-gradient(90deg, #27e0ff, #00bcd4, #00ffa3);
+        --panel: #0b1a26;
+        --text: #def7ff;
+        --muted: #9ec9d8;
+      }
+      .theme-sunset {
+        --accent: #ff6d6d;
+        --accent-2: #ffb36d;
+        --bar: linear-gradient(90deg, #ff6d6d, #ffb36d, #ffd166);
+        --panel: #23121a;
+        --text: #ffecea;
+        --muted: #ffbdaf;
+      }
+      .theme-matrix {
+        --accent: #00ff87;
+        --accent-2: #00ffa3;
+        --bar: linear-gradient(90deg, #00ff87, #00ffa3, #00e5ff);
+        --panel: #0a0f0a;
+        --text: #e7ffe7;
+        --muted: #a9e6b5;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        color: var(--text);
+        font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
+          "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.6;
+        background: radial-gradient(
+            1200px 800px at 15% 12%,
+            rgba(0, 229, 255, 0.1),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 700px at 85% 88%,
+            rgba(0, 255, 163, 0.1),
+            transparent 60%
+          ),
+          linear-gradient(180deg, #06080c, var(--bg));
+        min-height: 100vh;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 16px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(0, 0, 0, 0)
+        );
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(6px);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+      .logo {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        background: radial-gradient(
+            circle at 28% 30%,
+            var(--accent),
+            transparent 58%
+          ),
+          radial-gradient(circle at 70% 70%, var(--accent-2), transparent 55%);
+        box-shadow: 0 0 12px var(--accent);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .top-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        background: var(--glass);
+        color: var(--text);
+        border-radius: 12px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.2s ease,
+          border-color 0.2s ease, background-color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(0, 229, 255, 0.15);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-color: var(--accent);
+        color: #001014;
+      }
+      .btn-secondary {
+        background: transparent;
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-ghost {
+        background: var(--opt-bg);
+      }
+
+      .hero-section {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 229, 255, 0.08),
+          rgba(0, 255, 163, 0.08)
+        );
+        border-bottom: 1px solid var(--border);
+        padding: 60px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-section::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+        opacity: 0.05;
+        animation: rotate 22s linear infinite;
+      }
+      @keyframes rotate {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .hero-content {
+        max-width: 980px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .hero-title {
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        font-weight: 900;
+        background: var(--bar);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.5px;
+        margin-bottom: 14px;
+      }
+      .hero-subtitle {
+        font-size: 1.15rem;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+      }
+      .stat-card {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .stat-number {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--accent);
+      }
+      .stat-label {
+        color: var(--muted);
+        font-size: 0.92rem;
+        margin-top: 4px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 28px 20px 50px;
+        width: 100%;
+      }
+      .setup-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 26px;
+        margin-bottom: 30px;
+      }
+      @media (max-width: 900px) {
+        .setup-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .setup-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--shadow-lg);
+      }
+      .card-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 16px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        background: var(--select-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        transition: all 0.25s ease;
+      }
+      .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: var(--focus);
+      }
+      .form-control-wrap {
+        position: relative;
+      }
+      .clear-input {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 1px solid var(--border);
+        background: var(--opt-bg);
+        color: var(--muted);
+        border-radius: 8px;
+        padding: 4px 6px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .clear-input:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 16px;
+      }
+      .feature-card {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.25s ease;
+      }
+      .feature-card:hover {
+        transform: translateY(-3px);
+      }
+      .feature-icon {
+        font-size: 1.7rem;
+        margin-bottom: 10px;
+      }
+      .feature-title {
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 6px;
+      }
+      .feature-desc {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .quiz-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 20px 60px;
+      }
+      .quiz-header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 18px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+      .quiz-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: center;
+      }
+      .info-item {
+        display: inline-flex;
+        gap: 8px;
+        align-items: baseline;
+      }
+      .info-label {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .info-value {
+        font-weight: 900;
+        color: var(--accent);
+      }
+      .quiz-controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .progress-bar {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 16px 0 18px;
+        border: 1px solid var(--border);
+      }
+      .progress-fill {
+        height: 100%;
+        background: var(--bar);
+        transition: width 0.25s ease;
+        box-shadow: 0 0 14px var(--accent);
+        width: 0%;
+      }
+
+      .question-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+      }
+      .question-text {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 18px;
+        white-space: pre-wrap;
+      }
+
+      .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+      }
+      .option {
+        padding: 16px 14px;
+        background: var(--opt-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.08s ease, border-color 0.12s ease,
+          box-shadow 0.12s ease, background-color 0.12s ease;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .option .kbd {
+        display: inline-block;
+        padding: 2px 6px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        font-size: 12px;
+        color: var(--muted);
+        background: #0f1523;
+      }
+      .option:hover {
+        transform: translateY(-1px);
+        border-color: var(--accent);
+        background: var(--opt-bg-hover);
+        box-shadow: 0 0 14px rgba(0, 229, 255, 0.14);
+      }
+      .option.correct {
+        background: var(--opt-bg-correct);
+        border-color: var(--ok);
+        box-shadow: 0 0 16px rgba(53, 243, 163, 0.18);
+      }
+      .option.wrong {
+        background: var(--opt-bg-wrong);
+        border-color: var(--danger);
+        box-shadow: 0 0 16px rgba(255, 88, 118, 0.18);
+      }
+      .option.disabled {
+        pointer-events: none;
+        opacity: 0.7;
+      }
+
+      .explain {
+        margin-top: 12px;
+        background: rgba(10, 14, 20, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: var(--shadow-lg);
+        display: grid;
+        gap: 10px;
+      }
+      .explain .title {
+        font-weight: 900;
+        letter-spacing: 0.2px;
+      }
+      .explain .correct {
+        color: var(--ok);
+        font-weight: 800;
+      }
+      .explain .why {
+        opacity: 0.95;
+      }
+      .explain .controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.82);
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 30px 16px;
+      }
+      .modal-content {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 22px;
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 12px;
+      }
+      .modal-title {
+        font-size: 1.4rem;
+        font-weight: 900;
+      }
+      .close-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 6px 10px;
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .table th,
+      .table td {
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+      }
+
+      .note-section {
+        margin-bottom: 22px;
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      .inline-note {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .name-suggest {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .pill {
+        position: relative;
+        border: 1px solid var(--border);
+        background: var(--opt-bg);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 6px 28px 6px 12px; /* room for × */
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .pill:hover {
+        border-color: var(--accent);
+      }
+      .pill .pill-remove {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--opt-bg);
+        color: var(--muted);
+        font-weight: 900;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+      }
+      .pill .pill-remove:hover {
+        color: var(--text);
+        border-color: var(--danger);
+      }
+    </style>
+  </head>
+  <body class="theme-neon">
+    <!-- Top utilities bar -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>Edura</span>
+      </div>
+      <div class="top-actions">
+        <button
+          id="leaderboardBtnTop"
+          class="btn btn-ghost"
+          title="Leaderboard"
+        >
+          🏅 Leaderboard
+        </button>
+        <button id="settingsBtn" class="btn btn-ghost" title="Settings">
+          ⚙️ Settings
+        </button>
+        <button id="themeBtn" class="btn btn-ghost" title="Switch Theme">
+          🌈 Theme
+        </button>
+        <button
+          id="muteBtn"
+          class="btn btn-ghost"
+          aria-pressed="false"
+          title="Toggle Sound"
+        >
+          🔊 Sound
+        </button>
+      </div>
+    </div>
+
+    <!-- Home screen -->
+    <div id="homeScreen">
+      <section class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">Master code the smart way.</h1>
+          <p class="hero-subtitle">
+            Timed MCQs. Clean UI. Focus music. Adaptive difficulty. Local and
+            optional cloud leaderboard.
+          </p>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number">8</div>
+              <div class="stat-label">Languages</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">400+</div>
+              <div class="stat-label">Questions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">3</div>
+              <div class="stat-label">Difficulty levels</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="totalPlayed">0</div>
+              <div class="stat-label">Games played</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <div class="setup-grid">
+          <!-- Left: configuration -->
+          <div class="setup-card">
+            <h2 class="card-title">🎮 Quiz configuration</h2>
+
+            <div class="form-group">
+              <label class="form-label" for="playerName">👤 Your name</label>
+              <div class="form-control-wrap">
+                <input
+                  id="playerName"
+                  class="form-control"
+                  type="text"
+                  placeholder="Enter your name"
+                  maxlength="32"
+                  list="nameHistoryList"
+                />
+                <button id="clearPlayerName" class="clear-input" title="Clear">
+                  ✕
+                </button>
+              </div>
+              <datalist id="nameHistoryList"></datalist>
+              <div class="inline-note">
+                Tip: pick from suggestions or type a new name. Click ✕ on any
+                suggestion to remove it from this list.
+              </div>
+              <div id="nameSuggestPills" class="name-suggest"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="language"
+                >💻Pick a Coding Category</label
+              >
+              <select id="language" class="form-control">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="cpp">C++</option>
+                <option value="java">Java</option>
+                <option value="c">C</option>
+                <option value="dsa">Data Structures & Algorithms</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="difficulty"
+                >🎯 Difficulty level</label
+              >
+              <select id="difficulty" class="form-control">
+                <option value="easy">Easy (30 seconds per question)</option>
+                <option value="medium" selected>
+                  Medium (1 minute per question)
+                </option>
+                <option value="hard">Hard (2 minutes per question)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="questionCount"
+                >📊 Number of questions</label
+              >
+              <select id="questionCount" class="form-control">
+                <option value="12">12 Questions</option>
+                <option value="16">16 Questions</option>
+                <option value="20" selected>20 Questions</option>
+                <option value="30">30 Questions</option>
+                <option value="40">40 Questions</option>
+                <option value="50">50 Questions</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Right: how to play + features + highs -->
+          <div class="setup-card">
+            <h2 class="card-title">📚 How to play</h2>
+            <ul class="note-list">
+              <li>Select a language, difficulty, and enter your name.</li>
+              <li>Answer within time. Keys 1–4 select answers.</li>
+              <li>Press P to pause; L to use 50–50 lifeline (not in Hard).</li>
+              <li>
+                Build streaks to keep momentum; review answers at the end.
+              </li>
+            </ul>
+
+            <div
+              style="
+                margin-top: 14px;
+                color: var(--muted);
+                display: grid;
+                gap: 6px;
+              "
+            >
+              <div style="font-weight: 900">Your best in this mode</div>
+              <div style="display: flex; gap: 18px; flex-wrap: wrap">
+                <div>Highest score: <strong id="modeHighScore">0</strong></div>
+                <div>Best streak: <strong id="modeHighStreak">0</strong></div>
+              </div>
+
+              <div style="font-weight: 900; margin-top: 12px">
+                Device-wide best (all modes, all players on this device)
+              </div>
+              <div style="display: flex; gap: 18px; flex-wrap: wrap">
+                <div>
+                  Highest score: <strong id="deviceBestScore">0</strong>
+                </div>
+                <div>Best streak: <strong id="deviceBestStreak">0</strong></div>
+              </div>
+            </div>
+
+            <div class="features-grid">
+              <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <div class="feature-title">Leaderboard</div>
+                <div class="feature-desc">
+                  Local storage, optional cloud sync
+                </div>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">⏱️</div>
+                <div class="feature-title">Timer</div>
+                <div class="feature-desc">Adaptive timing per difficulty</div>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Themes</div>
+                <div class="feature-desc">Neon, Aurora, Matrix and more</div>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon">🎵</div>
+                <div class="feature-title">Music</div>
+                <div class="feature-desc">Ambient focus tracks per theme</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button id="startBtn" class="btn btn-primary">▶ Start quiz</button>
+          <button id="openSettingsHome" class="btn btn-secondary">
+            ⚙️ Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div
+      id="quizScreen"
+      class="quiz-container hidden"
+      role="application"
+      aria-label="Quiz"
+    >
+      <div class="quiz-header">
+        <div class="quiz-info">
+          <div class="info-item">
+            <span class="info-label">Player:</span
+            ><span class="info-value" id="playerTagName">Guest</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Score:</span
+            ><span class="info-value" id="score">0</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Streak:</span
+            ><span class="info-value" id="streak">0</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Time:</span
+            ><span class="info-value" id="timer">0s</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Progress:</span
+            ><span class="info-value" id="progress">0/0</span>
+          </div>
+        </div>
+        <div class="quiz-controls">
+          <button id="pauseBtn" class="btn btn-ghost" disabled>⏸ Pause</button>
+          <button id="lifelineBtn" class="btn btn-ghost" disabled>
+            🪄 50–50
+          </button>
+          <button id="reviewBtnTop" class="btn btn-ghost" disabled>
+            📜 Review
+          </button>
+          <button id="homeBtn" class="btn btn-secondary">🏠 Home</button>
+        </div>
+      </div>
+
+      <div class="progress-bar" aria-label="Progress">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+
+      <div class="timer-line" aria-label="Time remaining bar">
+        <div id="timerLineFill"></div>
+      </div>
+
+      <section class="row" id="timerRow">
+        <div class="meter">
+          <div class="bar" aria-label="Time remaining">
+            <div id="timeFill" class="fill" style="width: 0%"></div>
+          </div>
+          <div class="meta">
+            <span id="timerText">Timer: 00s</span>
+            <span id="progressText">0 / 0</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="question-card">
+        <div class="question-text" id="question">
+          Choose a language and press Start to begin. 📲
+        </div>
+        <div
+          class="options-grid"
+          id="options"
+          role="listbox"
+          aria-label="Answer options"
+        ></div>
+        <div id="explainMount"></div>
+      </div>
+
+      <section class="row" id="statusRow">
+        <div class="statusline">
+          <span>🏆 Streak: <strong id="streak">0</strong></span>
+          <span>⭐ Score: <strong id="score">0</strong></span>
+          <span class="emoji" id="emoji">🤔</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer actions -->
+    <footer
+      class="app-footer"
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+      "
+    >
+      <span id="footerTip" class="hidden"
+        >Tip: Use keys 1–4, P to pause, L for 50–50.</span
+      >
+      <span>
+        <button
+          id="leaderboardBtnFooter"
+          class="btn btn-ghost"
+          title="Leaderboard"
+        >
+          🏅
+        </button>
+        <button
+          id="reviewBtnFooter"
+          class="btn btn-ghost"
+          title="Review"
+          disabled
+        >
+          📜
+        </button>
+      </span>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal" aria-hidden="true">
+      <div
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settingsTitle"
+      >
+        <div class="modal-header">
+          <h2 id="settingsTitle" class="modal-title">⚙️ Settings</h2>
+          <button class="close-btn" onclick="closeModal('settingsModal')">
+            ✕
+          </button>
+        </div>
+
+        <div id="tab-prefs" role="tabpanel" aria-label="Preferences">
+          <div class="note-section">
+            <h3>Preferences</h3>
+
+            <div class="form-group">
+              <label class="form-label" for="themeSelect">🌈 Theme</label>
+              <select id="themeSelect" class="form-control">
+                <option value="theme-neon" selected>Neon</option>
+                <option value="theme-aurora">Aurora</option>
+                <option value="theme-inferno">Inferno</option>
+                <option value="theme-ocean">Ocean</option>
+                <option value="theme-sunset">Sunset</option>
+                <option value="theme-matrix">Matrix</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="musicStyle">🎵 Music style</label>
+              <select id="musicStyle" class="form-control">
+                <option value="theme">Match theme</option>
+                <option value="calm-pad" selected>Calm pad</option>
+                <option value="ocean-wave">Ocean wave</option>
+                <option value="matrix-pluck">Matrix pluck</option>
+                <option value="inferno-arp">Inferno arp</option>
+                <option value="binaural">Binaural focus</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="sfxSelect">🔉 SFX Level</label>
+              <select id="sfxSelect" class="form-control">
+                <option value="0">Muted</option>
+                <option value="0.3">Low</option>
+                <option value="0.6" selected>Medium</option>
+                <option value="1">High</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="qsSelect">🧩 Questions</label>
+              <select id="qsSelect" class="form-control">
+                <option value="12">12</option>
+                <option value="16">16</option>
+                <option value="20" selected>20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">📖 Explanations</label>
+              <label style="display: flex; align-items: center; gap: 10px">
+                <input type="checkbox" id="explainOnWrong" />
+                Show explanation and wait for Next when I answer wrong or time
+                out
+              </label>
+              <label style="display: flex; align-items: center; gap: 10px">
+                <input type="checkbox" id="reducedMotion" />
+                Reduce motion
+              </label>
+              <div class="inline-note">
+                If unchecked, the quiz will auto-move to the next question on
+                wrong or timeout (still re-asking mistakes later).
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">🎵 Music</label>
+              <label style="display: flex; align-items: center; gap: 10px">
+                <input type="checkbox" id="musicToggle" checked />
+                Concentration music
+              </label>
+            </div>
+
+            <p style="margin: 0; color: var(--muted); font-size: 13px">
+              Preferences are saved on this device.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal" aria-hidden="true">
+      <div
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leaderboardTitle"
+      >
+        <div class="modal-header">
+          <h2 id="leaderboardTitle" class="modal-title">🏅 Leaderboard</h2>
+          <button class="close-btn" onclick="closeModal('leaderboardModal')">
+            ✕
+          </button>
+        </div>
+
+        <div class="note-section">
+          <table class="table" aria-label="Leaderboard table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Lang</th>
+                <th>Score</th>
+                <th>Streak</th>
+                <th>Diff</th>
+                <th>Date</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+          </table>
+          <div class="inline-note" id="lbStatus"></div>
+        </div>
+
+        <div
+          style="
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+          "
+        >
+          <button class="btn btn-ghost" id="leaderboardSync">Sync</button>
+          <button class="btn btn-ghost" id="leaderboardClear">
+            Clear local
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal" aria-hidden="true">
+      <div
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reviewTitle"
+      >
+        <div class="modal-header">
+          <h2 id="reviewTitle" class="modal-title">📜 Review Answers</h2>
+          <button class="close-btn" onclick="closeModal('reviewModal')">
+            ✕
+          </button>
+        </div>
+        <div id="reviewBody" class="note-section"></div>
+      </div>
+    </div>
+
+    <!-- Name Required Modal -->
+    <div id="nameModal" class="modal" aria-hidden="true">
+      <div
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nameTitle"
+      >
+        <div class="modal-header">
+          <h2 id="nameTitle" class="modal-title">👤 Enter your name</h2>
+          <button class="close-btn" onclick="closeModal('nameModal')">✕</button>
+        </div>
+        <div class="note-section">
+          <p>
+            Please enter your name to personalize your quiz and leaderboard. You
+            can also continue as Guest.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="nameModalInput">Your name</label>
+            <div class="form-control-wrap">
+              <input
+                id="nameModalInput"
+                class="form-control"
+                type="text"
+                maxlength="32"
+                list="nameHistoryListModal"
+              />
+              <button
+                id="clearNameModalInput"
+                class="clear-input"
+                title="Clear"
+              >
+                ✕
+              </button>
+            </div>
+            <datalist id="nameHistoryListModal"></datalist>
+            <div id="nameModalPills" class="name-suggest"></div>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end">
+            <button id="nameModalGuest" class="btn btn-ghost">
+              Continue as Guest
+            </button>
+            <button id="nameModalSave" class="btn btn-secondary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App scripts -->
+    <script>
+      // Modal helpers
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = "block";
+        el.setAttribute("aria-hidden", "false");
+      }
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = "none";
+        el.setAttribute("aria-hidden", "true");
+      }
+      ["settingsModal", "leaderboardModal", "reviewModal", "nameModal"].forEach(
+        (id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener("click", (e) => {
+            if (e.target === el) closeModal(id);
+          });
+        }
+      );
+
+      // Progress sync
+      (function syncProgressBar() {
+        const progressText = document.getElementById("progressText");
+        const bar = document.getElementById("progressBar");
+        if (!progressText || !bar) return;
+        const update = () => {
+          const m = progressText.textContent.trim().match(/(\d+)\s*\/\s*(\d+)/);
+          if (!m) return;
+          const cur = parseInt(m[1], 10);
+          const tot = parseInt(m[2], 10) || 1;
+          bar.style.width = Math.max(0, Math.min(100, (cur / tot) * 100)) + "%";
+        };
+        const obs = new MutationObserver(update);
+        obs.observe(progressText, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
+        update();
+      })();
+    </script>
+
+    <script>
+      // ---------- Question banks ----------
+      (function attachQuestionBanks() {
+        const code = (lang, src) => `Language: ${lang}\n\n${src}`;
+        const QB = {
+          javascript: {
+            easy: [
+              {
+                q: "Which keyword declares a constant?",
+                opts: ["let", "var", "const", "static"],
+                a: 2,
+                exp: "const creates a read-only binding. The identifier cannot be reassigned.",
+              },
+              {
+                q: "Strict equality operator is?",
+                opts: ["==", "===", "=:", "=>"],
+                a: 1,
+                exp: "=== compares without type coercion.",
+              },
+              {
+                q: "Add an item to end of array?",
+                opts: ["push", "append", "add", "insert"],
+                a: 0,
+                exp: "push appends and returns new length.",
+              },
+              {
+                q: "typeof null returns?",
+                opts: ["'null'", "'object'", "'undefined'", "'None'"],
+                a: 1,
+                exp: "Legacy quirk: typeof null === 'object'.",
+              },
+              {
+                q: "Which creates a block scope?",
+                opts: ["var", "let", "function", "with"],
+                a: 1,
+                exp: "let/const are block-scoped.",
+              },
+              {
+                q: "Which array method copies a portion?",
+                opts: ["splice", "slice", "split", "copyWithin"],
+                a: 1,
+                exp: "slice returns a shallow copy.",
+              },
+              {
+                q: "Which is a falsy value?",
+                opts: ["[]", "{}", "''", "'0'"],
+                a: 2,
+                exp: "Empty string is falsy.",
+              },
+              {
+                q: "Promise resolves via which method?",
+                opts: ["done", "then", "catch", "finish"],
+                a: 1,
+                exp: "then handles fulfillment.",
+              },
+              {
+                q: "Which removes first element?",
+                opts: ["shift", "pop", "unshift", "slice"],
+                a: 0,
+                exp: "shift removes from front.",
+              },
+              {
+                q: "Which defines a class?",
+                opts: ["class", "struct", "prototype", "define"],
+                a: 0,
+                exp: "class syntax sugar over prototypes.",
+              },
+            ],
+            medium: [
+              {
+                q: code(
+                  "JavaScript",
+                  `function add(a, b) {\n  return a + b\n}\nconsole.log(add(2));`
+                ),
+                opts: [
+                  "Missing argument leads to NaN (b undefined coerces to NaN)",
+                  "SyntaxError: missing semicolon",
+                  "ReferenceError: add is not defined",
+                  "TypeError: add is not a function",
+                ],
+                a: 0,
+                exp: "add(2) passes only one arg => a=2, b=undefined; 2 + undefined => NaN.",
+              },
+              {
+                q: code(
+                  "JavaScript",
+                  `const obj = { a: 1 };\nobj.a = 2;\nobj = { a: 3 };`
+                ),
+                opts: [
+                  "TypeError: Assignment to constant variable",
+                  "ReferenceError: obj is not defined",
+                  "SyntaxError: Unexpected token =",
+                  "RangeError: Maximum call stack size exceeded",
+                ],
+                a: 0,
+                exp: "You can mutate const object's properties, but cannot reassign the binding.",
+              },
+              {
+                q: code(
+                  "JavaScript",
+                  `let x;\nif (x === 0) { console.log('zero'); }`
+                ),
+                opts: [
+                  "Logic bug: x is undefined, condition never true",
+                  "SyntaxError: Missing initializer in let declaration",
+                  "TypeError: x is not iterable",
+                  "ReferenceError: x is not defined",
+                ],
+                a: 0,
+                exp: "x is undefined; strict equality to 0 fails.",
+              },
+              {
+                q: code(
+                  "JavaScript",
+                  `const arr = [1,2,3];\narr.slice(1,2);\nconsole.log(arr);`
+                ),
+                opts: [
+                  "No mutation: arr remains [1,2,3]",
+                  "TypeError: slice is not a function",
+                  "ReferenceError: arr is not defined",
+                  "RangeError: Invalid array length",
+                ],
+                a: 0,
+                exp: "Slice doesn't mutate; array remains same.",
+              },
+              {
+                q: code(
+                  "JavaScript",
+                  `const m = new Map();\nm.set('1', 'a');\nconsole.log(m.get(1));`
+                ),
+                opts: [
+                  "Undefined due to key type mismatch",
+                  "TypeError: m.get is not a function",
+                  "ReferenceError: Map is not defined",
+                  "SyntaxError: Unexpected identifier",
+                ],
+                a: 0,
+                exp: "Map keys are type-sensitive: '1' vs 1.",
+              },
+            ],
+            hard: [
+              {
+                q: code(
+                  "JavaScript",
+                  `console.log([1,2,3].map(x => x * 2).filter(x => x > 3).reduce((a,b) => a + b, 0));`
+                ),
+                opts: ["10", "12", "8", "6"],
+                a: 0,
+                exp: "Map -> [2,4,6]; filter >3 -> [4,6]; sum = 10.",
+              },
+              {
+                q: code(
+                  "JavaScript",
+                  `console.log(typeof NaN, NaN === NaN, Number.isNaN(NaN));`
+                ),
+                opts: [
+                  "'number', false, true",
+                  "'NaN', true, true",
+                  "'number', true, false",
+                  "'object', false, false",
+                ],
+                a: 0,
+                exp: "typeof NaN is 'number'; NaN !== NaN; Number.isNaN(NaN) is true.",
+              },
+              {
+                q: code(
+                  "JavaScript",
+                  `let x = 0;\nconsole.log(x || 'a', x ?? 'b');`
+                ),
+                opts: ["'a' b", "'a' 0", "0 'b'", "0 0"],
+                a: 2,
+                exp: "x||'a' => 'a' since 0 is falsy; x??'b' => 0 since nullish only.",
+              },
+            ],
+          },
+          python: {
+            easy: [
+              {
+                q: "Which keyword defines a function in Python?",
+                opts: ["func", "function", "def", "lambda"],
+                a: 2,
+                exp: "Use def name(args):",
+              },
+              {
+                q: "Which is immutable?",
+                opts: ["list", "dict", "set", "tuple"],
+                a: 3,
+                exp: "Tuples are immutable.",
+              },
+              {
+                q: "Open file for reading:",
+                opts: [
+                  "open('f','r')",
+                  "open('f','w')",
+                  "read('f')",
+                  "file('f')",
+                ],
+                a: 0,
+                exp: "Mode 'r' reads.",
+              },
+              {
+                q: "Create empty set:",
+                opts: ["{}", "set()", "[]", "set[]"],
+                a: 1,
+                exp: "{} is dict; set() is empty set.",
+              },
+              {
+                q: "PEP 8 relates to:",
+                opts: ["Performance", "Packaging", "Style guide", "Security"],
+                a: 2,
+                exp: "Style guide.",
+              },
+              {
+                q: "List comprehension form:",
+                opts: [
+                  "[x for x in it]",
+                  "(x for x in it)",
+                  "{x for x in it}",
+                  "<x for x in it>",
+                ],
+                a: 0,
+                exp: "[] list; () generator.",
+              },
+            ],
+            medium: [
+              {
+                q: code(
+                  "Python",
+                  `def greet(name):\n    print("Hello, " + name)\n\ngreet()`
+                ),
+                opts: [
+                  "TypeError: greet() missing 1 required positional argument",
+                  "SyntaxError: invalid syntax at print",
+                  "NameError: name 'greet' is not defined",
+                  "IndentationError: unexpected indent",
+                ],
+                a: 0,
+                exp: "Calling greet without required 'name' raises TypeError.",
+              },
+              {
+                q: code(
+                  "Python",
+                  `nums = [1,2,3]\nfor i in range(len(nums)):\n    nums.remove(i)\nprint(nums)`
+                ),
+                opts: [
+                  "Logic bug: removing by value while iterating indices mutates during iteration",
+                  "TypeError: list.remove() takes no arguments",
+                  "IndexError: list index out of range",
+                  "SyntaxError: invalid syntax",
+                ],
+                a: 0,
+                exp: "You're removing values equal to indices while mutating the list during iteration.",
+              },
+              {
+                q: code(
+                  "Python",
+                  `x = 10\ndef f():\n    print(x)\n    x = 5\nf()`
+                ),
+                opts: [
+                  "UnboundLocalError: local variable 'x' referenced before assignment",
+                  "NameError: name 'x' is not defined",
+                  "SyntaxError: invalid assignment",
+                  "TypeError: print() missing argument",
+                ],
+                a: 0,
+                exp: "Assignment inside function makes x local; reading before assignment causes UnboundLocalError.",
+              },
+              {
+                q: code("Python", `data = {"a":1}\nprint(data["b"])`),
+                opts: [
+                  "KeyError: 'b'",
+                  "TypeError: 'data' object is not subscriptable",
+                  "AttributeError: 'dict' object has no attribute 'b'",
+                  "IndexError: out of range",
+                ],
+                a: 0,
+                exp: "Accessing missing key raises KeyError.",
+              },
+            ],
+            hard: [
+              {
+                q: code(
+                  "Python",
+                  `def f(a=[]):\n    a.append(1)\n    return a\n\nprint(f())\nprint(f())`
+                ),
+                opts: ["[1]\n[1, 1]", "[1]\n[1]", "[]\n[1]", "[1,1]\n[1,1,1]"],
+                a: 0,
+                exp: "Default list persists across calls; outputs [1] then [1, 1].",
+              },
+              {
+                q: code("Python", `print("".join(reversed("abc")))`),
+                opts: ["cba", "abc", "['c','b','a']", "None"],
+                a: 0,
+                exp: "Reversed then join => 'cba'.",
+              },
+              {
+                q: code(
+                  "Python",
+                  `nums = [1,2,3,4]\nprint(sum(x for x in nums if x % 2 == 0))`
+                ),
+                opts: ["6", "4", "10", "0"],
+                a: 0,
+                exp: "Even numbers: 2+4 = 6.",
+              },
+            ],
+          },
+          cpp: {
+            easy: [
+              {
+                q: "Header for cout:",
+                opts: ["<iostream>", "<stdio.h>", "<stream>", "<output.h>"],
+                a: 0,
+                exp: "std::cout in <iostream>.",
+              },
+              {
+                q: "Single-line comment syntax:",
+                opts: ["//", "/*", "--", "#"],
+                a: 0,
+                exp: "// comment.",
+              },
+              {
+                q: "Default access in class:",
+                opts: ["public", "private", "protected", "friend"],
+                a: 1,
+                exp: "class defaults to private.",
+              },
+              {
+                q: "Reference operator:",
+                opts: ["&", "*", "->", "::"],
+                a: 0,
+                exp: "& declares a reference.",
+              },
+            ],
+            medium: [
+              {
+                q: code(
+                  "C++",
+                  `#include <iostream>\nint main(){\n    int* p;\n    *p = 10;\n    std::cout << *p << std::endl;\n}`
+                ),
+                opts: [
+                  "Undefined behavior: dereferencing uninitialized pointer",
+                  "Compilation error: missing include for std::cout",
+                  "Linker error: undefined reference to main",
+                  "Runtime error: integer overflow",
+                ],
+                a: 0,
+                exp: "p is uninitialized; dereferencing causes UB (likely crash).",
+              },
+              {
+                q: code(
+                  "C++",
+                  `#include <vector>\nint main(){\n    std::vector<int> v(3);\n    std::cout << v[3] << std::endl;\n}`
+                ),
+                opts: [
+                  "Out-of-bounds access (UB) on v[3]",
+                  "Syntax error: missing semicolon after main",
+                  "Type error: std::vector<int> cannot be indexed",
+                  "Linker error: std::cout not found",
+                ],
+                a: 0,
+                exp: "Indices 0..2 valid; v[3] is OOB => UB.",
+              },
+              {
+                q: code(
+                  "C++",
+                  `struct S { int x; };\nint main(){\n    S* s = nullptr;\n    s->x = 1;\n}`
+                ),
+                opts: [
+                  "Segmentation fault: dereferencing nullptr",
+                  "Compilation error: struct cannot have int",
+                  "Runtime error: stack overflow",
+                  "No issue: prints 1",
+                ],
+                a: 0,
+                exp: "Dereferencing a null pointer invokes undefined behavior; typically a segmentation fault.",
+              },
+            ],
+            hard: [
+              {
+                q: code(
+                  "C++",
+                  `#include <iostream>\nint main(){\n    int a = 1, b = 2;\n    std::cout << (a++ + ++b) << " " << a << " " << b;\n}`
+                ),
+                opts: ["4 2 3", "5 2 3", "4 1 3", "3 2 2"],
+                a: 0,
+                exp: "a++ uses 1 then a=2; ++b makes b=3; sum=4; prints '4 2 3'.",
+              },
+              {
+                q: code(
+                  "C++",
+                  `#include <iostream>\nint main(){\n    std::string s = "ab";\n    s += 'c';\n    std::cout << s.size() << " " << s;\n}`
+                ),
+                opts: ["3 abcd", "3 abc", "2 ab", "4 ab c"],
+                a: 1,
+                exp: "Append char: 'abc' size 3.",
+              },
+            ],
+          },
+          java: {
+            easy: [
+              {
+                q: "Entry point method in Java:",
+                opts: ["start()", "main()", "run()", "init()"],
+                a: 1,
+                exp: "public static void main(String[] args).",
+              },
+              {
+                q: "Not a primitive type:",
+                opts: ["int", "boolean", "String", "char"],
+                a: 2,
+                exp: "String is reference type.",
+              },
+              {
+                q: "Array index starts at:",
+                opts: ["1", "0", "-1", "Depends"],
+                a: 1,
+                exp: "Zero-based.",
+              },
+            ],
+            medium: [
+              {
+                q: code(
+                  "Java",
+                  `class Test {\n  public static void main(String[] args) {\n    String s = null;\n    System.out.println(s.length());\n  }\n}`
+                ),
+                opts: [
+                  "NullPointerException at s.length()",
+                  "Compilation error: length is not a field",
+                  "ArrayIndexOutOfBoundsException",
+                  "No output",
+                ],
+                a: 0,
+                exp: "Calling method on null throws NPE.",
+              },
+              {
+                q: code(
+                  "Java",
+                  `class A {\n  void m() { System.out.println("A"); }\n}\nclass B extends A {\n  void m(int x) { System.out.println("B"); }\n  public static void main(String[] a) {\n    new B().m();\n  }\n}`
+                ),
+                opts: [
+                  "Compilation error: method m() not found in B (overloaded, not overridden)",
+                  "Runtime error",
+                  "Prints 'B'",
+                  "Prints 'A'",
+                ],
+                a: 0,
+                exp: "B defines m(int), not m(); calling new B().m() fails to resolve.",
+              },
+              {
+                q: code(
+                  "Java",
+                  `class T {\n  public static void main(String[] args) {\n    int[] arr = new int[2];\n    System.out.println(arr[2]);\n  }\n}`
+                ),
+                opts: [
+                  "ArrayIndexOutOfBoundsException",
+                  "NullPointerException",
+                  "Compilation error: size mismatch",
+                  "Prints 0",
+                ],
+                a: 0,
+                exp: "Access beyond array bounds throws AIOOBE.",
+              },
+            ],
+            hard: [
+              {
+                q: code(
+                  "Java",
+                  `class T {\n  public static void main(String[] args) {\n    String s = "ab";\n    s += 1 + 2;\n    System.out.println(s);\n  }\n}`
+                ),
+                opts: ["ab12", "ab3", "3ab", "ab"],
+                a: 1,
+                exp: "1+2 evaluated first => 3; 'ab' + 3 => 'ab3'.",
+              },
+              {
+                q: code(
+                  "Java",
+                  `class T {\n  public static void main(String[] args) {\n    System.out.println(10/3 + " " + 10/3.0);\n  }\n}`
+                ),
+                opts: ["3 3.3333333333333335", "3 3.0", "3.0 3.0", "3 3"],
+                a: 0,
+                exp: "Integer division yields 3; double division ~3.3333.",
+              },
+            ],
+          },
+          c: {
+            easy: [
+              {
+                q: "Header for printf:",
+                opts: ["<stdio.h>", "<stdlib.h>", "<string.h>", "<ctype.h>"],
+                a: 0,
+                exp: "printf in stdio.h.",
+              },
+              {
+                q: "String terminator:",
+                opts: ["\\n", "\\0", "\\t", "EOF"],
+                a: 1,
+                exp: "Null byte \\0.",
+              },
+              {
+                q: "Array indexing starts at:",
+                opts: ["1", "0", "-1", "Depends"],
+                a: 1,
+                exp: "Zero-based.",
+              },
+            ],
+            medium: [
+              {
+                q: code(
+                  "C",
+                  `#include <stdio.h>\nint main(){\n    int *p;\n    *p = 10;\n    printf("%d\\n", *p);\n}`
+                ),
+                opts: [
+                  "Undefined behavior: dereferencing uninitialized pointer",
+                  "Compilation error: printf not declared",
+                  "Runtime error: integer overflow",
+                  "No output",
+                ],
+                a: 0,
+                exp: "Uninitialized pointer deref => UB.",
+              },
+              {
+                q: code(
+                  "C",
+                  `#include <stdio.h>\nint main(){\n    int a = 10;\n    printf("%s\\n", a);\n}`
+                ),
+                opts: [
+                  "Wrong format specifier: %s for int (undefined behavior)",
+                  "Compilation error: cannot print int",
+                  "Runtime error: segmentation fault guaranteed",
+                  "Outputs '10'",
+                ],
+                a: 0,
+                exp: "Mismatched format specifier triggers UB.",
+              },
+              {
+                q: code(
+                  "C",
+                  `#include <stdio.h>\nint main(){\n    char s[3] = "abc";\n    printf("%s\\n", s);\n}`
+                ),
+                opts: [
+                  "Buffer overflow: string too long for array",
+                  "Compilation error: char array cannot hold strings",
+                  "No issue: prints 'abc'",
+                  "Undefined reference to printf",
+                ],
+                a: 0,
+                exp: "Needs 4 bytes including null; overflow writes past buffer.",
+              },
+            ],
+            hard: [
+              {
+                q: code(
+                  "C",
+                  `#include <stdio.h>\nint main(){\n    int a = 1, b = 2;\n    printf("%d %d %d\\n", a++ + ++b, a, b);\n}`
+                ),
+                opts: ["4 2 3", "4 1 3", "3 2 2", "5 2 3"],
+                a: 0,
+                exp: "Post-increment uses 1 then a=2; pre-increment b=3; sum 4.",
+              },
+              {
+                q: code(
+                  "C",
+                  `#include <stdio.h>\nint main(){\n    char s[] = "ab";\n    printf("%lu %c\\n", sizeof(s), s[1]);\n}`
+                ),
+                opts: ["3 b", "2 b", "3 a", "2 a"],
+                a: 0,
+                exp: "s = {'a','b','\\0'} => sizeof(s)=3; s[1]='b'.",
+              },
+            ],
+          },
+          dsa: [
+            {
+              q: "Inorder traversal of a BST yields:",
+              opts: [
+                "Postorder",
+                "Sorted order",
+                "Reverse order",
+                "Level order",
+              ],
+              a: 1,
+              exp: "Inorder of BST is non-decreasing order.",
+            },
+            {
+              q: "Time complexity of binary search:",
+              opts: ["O(n)", "O(log n)", "O(1)", "O(n log n)"],
+              a: 1,
+              exp: "Search space halves each step.",
+            },
+            {
+              q: "Queue works on:",
+              opts: ["LIFO", "FIFO", "Random", "Priority"],
+              a: 1,
+              exp: "First-In, First-Out.",
+            },
+            {
+              q: "Which sorting is stable?",
+              opts: ["Quick sort", "Merge sort", "Heap sort", "Selection sort"],
+              a: 1,
+              exp: "Merge sort is stable.",
+            },
+          ],
+          html: [
+            {
+              q: "HTML stands for:",
+              opts: [
+                "HyperText Markup Language",
+                "Hyperlinks and Text Markup Language",
+                "Home Tool Markup Language",
+                "Hyper Tag Modular Language",
+              ],
+              a: 0,
+              exp: "HTML is the standard markup for web documents.",
+            },
+            {
+              q: "Correct doctype for HTML5:",
+              opts: [
+                "<!DOCTYPE html>",
+                "<!doctype HTML5>",
+                "<!DOCTYPE HTML5>",
+                "<!HTML>",
+              ],
+              a: 0,
+              exp: "Use <!DOCTYPE html>.",
+            },
+            {
+              q: "Which tag is semantic?",
+              opts: ["<div>", "<span>", "<section>", "<b>"],
+              a: 2,
+              exp: "<section> conveys structure.",
+            },
+            {
+              q: "Attribute for alt text on image:",
+              opts: ["title", "alt", "desc", "label"],
+              a: 1,
+              exp: "alt helps accessibility.",
+            },
+          ],
+          css: [
+            {
+              q: "CSS stands for:",
+              opts: [
+                "Cascading Style Sheets",
+                "Creative Style System",
+                "Colorful Sheet Style",
+                "Computed Style Syntax",
+              ],
+              a: 0,
+              exp: "Styles for HTML.",
+            },
+            {
+              q: "Select element with id='main':",
+              opts: [".main", "#main", "main", "*main"],
+              a: 1,
+              exp: "# targets ID.",
+            },
+            {
+              q: "Center a block horizontally:",
+              opts: [
+                "margin: 0 auto;",
+                "text-align: center;",
+                "display: inline;",
+                "position: center;",
+              ],
+              a: 0,
+              exp: "Needs width and margin auto.",
+            },
+            {
+              q: "Flexbox main-axis alignment:",
+              opts: [
+                "align-items",
+                "justify-content",
+                "place-items",
+                "flex-flow",
+              ],
+              a: 1,
+              exp: "Main-axis uses justify-content.",
+            },
+          ],
+        };
+        window.__QB__ = QB;
+        if (typeof window.renderLeaderboard === "function") {
+          window.renderLeaderboard();
+        }
+      })();
+    </script>
+
+    <script>
+      (function () {
+        const REMOTE_ENDPOINT = ""; // optional cloud endpoint
+
+        // Sections and controls
+        const homeScreen = document.getElementById("homeScreen");
+        const quizScreen = document.getElementById("quizScreen");
+
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const lifelineBtn = document.getElementById("lifelineBtn");
+        const reviewBtnTop = document.getElementById("reviewBtnTop");
+        const homeBtn = document.getElementById("homeBtn");
+        const leaderboardBtnFooter = document.getElementById(
+          "leaderboardBtnFooter"
+        );
+        const reviewBtnFooter = document.getElementById("reviewBtnFooter");
+
+        const playerName = document.getElementById("playerName");
+        const clearPlayerName = document.getElementById("clearPlayerName");
+        const language = document.getElementById("language");
+        const difficulty = document.getElementById("difficulty");
+        const questionCount = document.getElementById("questionCount");
+        const nameHistoryList = document.getElementById("nameHistoryList");
+        const nameSuggestPills = document.getElementById("nameSuggestPills");
+
+        const nameModal = document.getElementById("nameModal");
+        const nameModalInput = document.getElementById("nameModalInput");
+        const clearNameModalInput = document.getElementById(
+          "clearNameModalInput"
+        );
+        const nameHistoryListModal = document.getElementById(
+          "nameHistoryListModal"
+        );
+        const nameModalPills = document.getElementById("nameModalPills");
+        const nameModalSave = document.getElementById("nameModalSave");
+        const nameModalGuest = document.getElementById("nameModalGuest");
+
+        const timeFill = document.getElementById("timeFill");
+        const timerText = document.getElementById("timerText");
+        const progressText = document.getElementById("progressText");
+        const timerLineFill = document.getElementById("timerLineFill");
+
+        const totalPlayedEl = document.getElementById("totalPlayed");
+        const modeHighScoreEl = document.getElementById("modeHighScore");
+        const modeHighStreakEl = document.getElementById("modeHighStreak");
+        const deviceBestScoreEl = document.getElementById("deviceBestScore");
+        const deviceBestStreakEl = document.getElementById("deviceBestStreak");
+        const playerTagName = document.getElementById("playerTagName");
+
+        const themeSelect = document.getElementById("themeSelect");
+        const musicStyle = document.getElementById("musicStyle");
+        const sfxSelect = document.getElementById("sfxSelect");
+        const qsSelect = document.getElementById("qsSelect");
+        const reducedMotion = document.getElementById("reducedMotion");
+        const explainOnWrong = document.getElementById("explainOnWrong");
+        const musicToggle = document.getElementById("musicToggle");
+        const settingsBtn = document.getElementById("settingsBtn");
+        const leaderboardBtnTop = document.getElementById("leaderboardBtnTop");
+        const themeBtn = document.getElementById("themeBtn");
+        const muteBtn = document.getElementById("muteBtn");
+        const leaderboardClearBtn = document.getElementById("leaderboardClear");
+        const leaderboardSyncBtn = document.getElementById("leaderboardSync");
+        const lbStatus = document.getElementById("lbStatus");
+        const footerTip = document.getElementById("footerTip");
+        const openSettingsHome = document.getElementById("openSettingsHome");
+
+        const store = {
+          get(k, f) {
+            try {
+              return JSON.parse(localStorage.getItem(k)) ?? f;
+            } catch {
+              return f;
+            }
+          },
+          set(k, v) {
+            localStorage.setItem(k, JSON.stringify(v));
+          },
+        };
+
+        // Name history
+        function getNameHistory() {
+          const arr = store.get("nameHistory", []);
+          return Array.isArray(arr) ? arr : [];
+        }
+        function setNameHistory(arr) {
+          store.set("nameHistory", arr);
+        }
+        function addNameToHistory(name) {
+          const n = (name || "").trim();
+          if (!n) return;
+          let hist = getNameHistory();
+          hist = hist.filter((x) => x.toLowerCase() !== n.toLowerCase());
+          hist.unshift(n);
+          setNameHistory(hist.slice(0, 10));
+        }
+        function removeNameFromHistory(name) {
+          const n = (name || "").trim();
+          if (!n) return;
+          let hist = getNameHistory();
+          hist = hist.filter((x) => x.toLowerCase() !== n.toLowerCase());
+          setNameHistory(hist);
+          renderNameSuggestions();
+        }
+        function renderNameSuggestions() {
+          const hist = getNameHistory();
+          const last3 = hist.slice(0, 3);
+
+          nameHistoryList.innerHTML = "";
+          nameHistoryListModal.innerHTML = "";
+          hist.forEach((n) => {
+            const opt = document.createElement("option");
+            opt.value = n;
+            nameHistoryList.appendChild(opt);
+            const opt2 = document.createElement("option");
+            opt2.value = n;
+            nameHistoryListModal.appendChild(opt2);
+          });
+
+          // Pills with removable ✕
+          nameSuggestPills.innerHTML = "";
+          nameModalPills.innerHTML = "";
+          last3.forEach((n) => {
+            const pill = document.createElement("button");
+            pill.type = "button";
+            pill.className = "pill";
+            pill.textContent = n;
+            pill.title = "Click to use; ✕ to remove from history";
+            pill.addEventListener("click", () => {
+              playerName.value = n;
+              playerTagName.textContent = n;
+              state.name = n;
+              store.set("name", n);
+            });
+            const remove = document.createElement("span");
+            remove.className = "pill-remove";
+            remove.textContent = "✕";
+            remove.title = "Remove this name";
+            remove.addEventListener("click", (e) => {
+              e.stopPropagation();
+              removeNameFromHistory(n);
+            });
+            pill.appendChild(remove);
+            nameSuggestPills.appendChild(pill);
+
+            const pill2 = document.createElement("button");
+            pill2.type = "button";
+            pill2.className = "pill";
+            pill2.textContent = n;
+            pill2.title = "Click to fill; ✕ to remove from history";
+            pill2.addEventListener("click", () => {
+              nameModalInput.value = n;
+            });
+            const remove2 = document.createElement("span");
+            remove2.className = "pill-remove";
+            remove2.textContent = "✕";
+            remove2.title = "Remove this name";
+            remove2.addEventListener("click", (e) => {
+              e.stopPropagation();
+              removeNameFromHistory(n);
+            });
+            pill2.appendChild(remove2);
+            nameModalPills.appendChild(pill2);
+          });
+        }
+
+        const state = {
+          running: false,
+          paused: false,
+
+          mainIdx: 0,
+          pool: [],
+          wrongQueue: [],
+
+          score: 0,
+          streak: 0,
+          maxStreak: 0,
+          lifelineUsed: false,
+          timeLeft: 0,
+          timePerQ: 12,
+          totalQ: Number(store.get("qs", 20)),
+          difficulty: store.get("difficulty", "medium"),
+          theme: store.get("theme", "theme-neon"),
+          name: store.get("name", ""),
+          lang: store.get("lang", "javascript"),
+          reducedMotion: store.get("reducedMotion", false),
+          explainOnWrong: store.get("explainOnWrong", true),
+          musicOn: store.get("musicOn", true),
+          musicStyle: store.get("musicStyle", "calm-pad"),
+
+          current: null,
+          correctCount: 0,
+          _remoteLB: [],
+          _timerInterval: null,
+          awaitingNext: false, // waits for Next click when explanation is shown
+        };
+        window.__GQ_STATE__ = state;
+
+        function initControlsFromState() {
+          difficulty.value = state.difficulty;
+          language.value = state.lang;
+          playerName.value = state.name || "";
+          playerTagName.textContent = state.name || "Guest";
+
+          if (themeSelect) themeSelect.value = state.theme;
+          if (musicStyle) musicStyle.value = state.musicStyle;
+          if (sfxSelect) sfxSelect.value = String(store.get("sfxVolume", 0.6));
+          if (qsSelect) qsSelect.value = String(state.totalQ);
+
+          if (reducedMotion) reducedMotion.checked = !!state.reducedMotion;
+          if (explainOnWrong) explainOnWrong.checked = !!state.explainOnWrong;
+          if (musicToggle) musicToggle.checked = !!state.musicOn;
+
+          document.body.classList.remove(
+            "theme-neon",
+            "theme-aurora",
+            "theme-inferno",
+            "theme-ocean",
+            "theme-sunset",
+            "theme-matrix"
+          );
+          document.body.classList.add(state.theme);
+
+          const played = Number(store.get("totalPlayed", 0)) || 0;
+          if (totalPlayedEl) totalPlayedEl.textContent = String(played);
+
+          loadModeHighs();
+          updateDeviceBestFromLocal();
+          renderNameSuggestions();
+
+          if (progressText) progressText.textContent = `0 / ${state.totalQ}`;
+        }
+        initControlsFromState();
+
+        function modeKey() {
+          return `${state.lang}__${state.difficulty}`;
+        }
+        function loadModeHighs() {
+          const key = `highs__${modeKey()}`;
+          const v = store.get(key, { score: 0, streak: 0 });
+          modeHighScoreEl.textContent = v.score || 0;
+          modeHighStreakEl.textContent = v.streak || 0;
+        }
+        function saveModeHighs(score, streak) {
+          const key = `highs__${modeKey()}`;
+          const prev = store.get(key, { score: 0, streak: 0 });
+          store.set(key, {
+            score: Math.max(prev.score || 0, score || 0),
+            streak: Math.max(prev.streak || 0, streak || 0),
+          });
+        }
+
+        function applyDifficulty() {
+          const cfg = {
+            easy: { time: 30, lifeline: true },
+            medium: { time: 60, lifeline: true },
+            hard: { time: 120, lifeline: false },
+          };
+          const c = cfg[state.difficulty] || cfg.medium;
+          state.timePerQ = c.time;
+          lifelineBtn.disabled = !c.lifeline || state.correctCount < 5;
+        }
+
+        function showHome() {
+          state.running = false;
+          footerTip.classList.add("hidden");
+          quizScreen.classList.add("hidden");
+          homeScreen.classList.remove("hidden");
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+          homeBtn.disabled = false;
+          lifelineBtn.disabled = true;
+        }
+        function showQuiz() {
+          homeScreen.classList.add("hidden");
+          quizScreen.classList.remove("hidden");
+          footerTip.classList.remove("hidden");
+          homeBtn.disabled = false;
+        }
+
+        function getLocalLeaderboard() {
+          const list = store.get("leaderboard", []);
+          return Array.isArray(list) ? list : [];
+        }
+        function setLocalLeaderboard(list) {
+          store.set("leaderboard", list.slice(0, 50));
+        }
+        function persistLeaderboard() {
+          const list = getLocalLeaderboard();
+          list.push({
+            name: state.name && state.name.trim() ? state.name.trim() : "Guest",
+            lang: state.lang,
+            score: state.score,
+            streak: state.maxStreak,
+            difficulty: state.difficulty,
+            totalQ: state.totalQ,
+            date: new Date().toISOString(),
+            source: "local",
+          });
+          list.sort(
+            (a, b) =>
+              b.score - a.score ||
+              b.streak - a.streak ||
+              new Date(b.date) - new Date(a.date)
+          );
+          setLocalLeaderboard(list);
+          updateDeviceBestFromLocal();
+        }
+
+        function updateDeviceBestFromLocal() {
+          const list = getLocalLeaderboard();
+          let bestScore = 0;
+          let bestStreak = 0;
+          list.forEach((row) => {
+            if (row.score > bestScore) bestScore = row.score;
+            if (row.streak > bestStreak) bestStreak = row.streak;
+          });
+          deviceBestScoreEl.textContent = bestScore;
+          deviceBestStreakEl.textContent = bestStreak;
+        }
+
+        async function fetchRemoteLeaderboard() {
+          if (!REMOTE_ENDPOINT) return [];
+          try {
+            lbStatus.textContent = "Fetching remote leaderboard…";
+            const res = await fetch(REMOTE_ENDPOINT, { method: "GET" });
+            const data = await res.json();
+            const arr = Array.isArray(data.leaderboard) ? data.leaderboard : [];
+            return arr.map((x) => ({
+              name: (x.name && String(x.name).trim()) || "Guest",
+              lang: x.lang || "javascript",
+              score: Number(x.score) || 0,
+              streak: Number(x.streak) || 0,
+              difficulty: x.difficulty || "medium",
+              totalQ: Number(x.totalQ) || 20,
+              date: x.date || new Date().toISOString(),
+              source: "cloud",
+            }));
+          } catch {
+            lbStatus.textContent = "Remote fetch failed. Showing local only.";
+            return [];
+          }
+        }
+        async function renderLeaderboard() {
+          const tbody = document.getElementById("leaderboardBody");
+          if (!tbody) return;
+          tbody.innerHTML = "";
+          const local = getLocalLeaderboard();
+          let merged = local.slice();
+
+          if (REMOTE_ENDPOINT) {
+            const remote = await fetchRemoteLeaderboard();
+            state._remoteLB = remote;
+            merged = merged.concat(remote);
+          }
+          merged.sort(
+            (a, b) =>
+              b.score - a.score ||
+              b.streak - a.streak ||
+              new Date(b.date) - new Date(a.date)
+          );
+          merged.forEach((row, i) => {
+            const d = new Date(row.date);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${i + 1}</td>
+              <td>${escapeHtml(row.name)}</td>
+              <td>${escapeHtml(row.lang)}</td>
+              <td>${row.score}</td>
+              <td>${row.streak}</td>
+              <td>${row.difficulty}</td>
+              <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}</td>
+              <td>${row.source || "local"}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          lbStatus.textContent = REMOTE_ENDPOINT
+            ? "Showing local + cloud leaderboard."
+            : "Showing local leaderboard only.";
+        }
+        window.renderLeaderboard = renderLeaderboard;
+
+        function escapeHtml(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        class AudioBus {
+          constructor() {
+            this.ctx = null;
+            this.masterGain = null;
+            this.musicGain = null;
+            this.sfxGain = null;
+            this.musicOn = store.get("musicOn", true);
+            this.sfxVol = Number(store.get("sfxVolume", 0.6));
+            this.prevSfxVol = this.sfxVol;
+            this.mode = store.get("musicStyle", "calm-pad");
+            this._nodes = {};
+          }
+          ensure() {
+            if (this.ctx) return;
+            const AC = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AC();
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.value = 1;
+            this.masterGain.connect(this.ctx.destination);
+            this.musicGain = this.ctx.createGain();
+            this.musicGain.gain.value = this.musicOn ? 0.25 : 0;
+            this.musicGain.connect(this.masterGain);
+            this.sfxGain = this.ctx.createGain();
+            this.sfxGain.gain.value = this.sfxVol;
+            this.sfxGain.connect(this.masterGain);
+            this.buildAmbient();
+          }
+          teardownAmbient() {
+            const n = this._nodes;
+            try {
+              if (n.loopTid) clearTimeout(n.loopTid);
+              [
+                "oscA",
+                "oscB",
+                "noise",
+                "lfo",
+                "filter",
+                "delay",
+                "fb",
+                "mix",
+                "env",
+                "panner",
+                "binaural",
+              ].forEach((k) => {
+                if (n[k] && n[k].disconnect) n[k].disconnect();
+                if (n[k] && n[k].stop) {
+                  try {
+                    n[k].stop(0);
+                  } catch {}
+                }
+              });
+            } catch {}
+            this._nodes = {};
+          }
+          setAmbientMode(mode) {
+            this.mode = mode;
+            store.set("musicStyle", mode);
+            if (this.ctx) {
+              this.teardownAmbient();
+              this.buildAmbient();
+            }
+          }
+          buildAmbient() {
+            this.ensure();
+            const f = this.ctx;
+            const n = (this._nodes = {});
+            const style =
+              this.mode === "theme"
+                ? store.get("theme", "theme-neon")
+                : this.mode;
+
+            n.mix = f.createGain();
+            n.mix.gain.value = 0.7;
+            n.delay = f.createDelay(0.6);
+            n.delay.delayTime.value = 0.28;
+            n.fb = f.createGain();
+            n.fb.gain.value = 0.22;
+            n.delay.connect(n.fb).connect(n.delay);
+            n.mix.connect(n.delay).connect(this.musicGain);
+
+            if (
+              [
+                "calm-pad",
+                "theme-neon",
+                "theme-aurora",
+                "theme-sunset",
+              ].includes(style)
+            ) {
+              n.filter = f.createBiquadFilter();
+              n.filter.type = "lowpass";
+              n.filter.frequency.value = 1200;
+              n.filter.Q.value = 0.2;
+              n.oscA = f.createOscillator();
+              n.oscB = f.createOscillator();
+              n.oscA.type = "sine";
+              n.oscB.type = "triangle";
+              n.oscB.detune.value = +7;
+              n.env = f.createGain();
+              n.env.gain.value = 0.0001;
+              n.oscA.connect(n.env);
+              n.oscB.connect(n.env);
+              n.env.connect(n.filter).connect(n.mix);
+              n.filter.connect(n.mix);
+              n.oscA.start();
+              n.oscB.start();
+              const base = style === "theme-aurora" ? 196 : 220;
+              const chord =
+                style === "theme-sunset"
+                  ? [1.0, 1.2, 1.5, 1.8]
+                  : [1.0, 1.25, 1.5, 2.0];
+              const loop = () => {
+                if (!this.ctx) return;
+                const now = f.currentTime;
+                const span = 8;
+                const idx = Math.floor(now / span) % chord.length;
+                const fA = base * chord[idx],
+                  fB = fA * 0.5;
+                n.oscA.frequency.setTargetAtTime(fA, now, 0.6);
+                n.oscB.frequency.setTargetAtTime(fB, now, 0.6);
+                n.env.gain.cancelScheduledValues(now);
+                n.env.gain.setValueAtTime(0.0001, now);
+                n.env.gain.linearRampToValueAtTime(0.35, now + 2.5);
+                n.env.gain.linearRampToValueAtTime(0.1, now + span - 0.5);
+                n.loopTid = setTimeout(loop, span * 1000);
+              };
+              loop();
+            } else if (["ocean-wave", "theme-ocean"].includes(style)) {
+              const bufferSize = 2 * f.sampleRate;
+              const noiseBuffer = f.createBuffer(1, bufferSize, f.sampleRate);
+              const data = noiseBuffer.getChannelData(0);
+              for (let i = 0; i < bufferSize; i++)
+                data[i] = Math.random() * 2 - 1;
+              n.noise = f.createBufferSource();
+              n.noise.buffer = noiseBuffer;
+              n.noise.loop = true;
+              n.filter = f.createBiquadFilter();
+              n.filter.type = "lowpass";
+              n.filter.frequency.value = 600;
+              n.lfo = f.createOscillator();
+              const lfoGain = f.createGain();
+              lfoGain.gain.value = 200;
+              n.lfo.frequency.value = 0.05;
+              n.lfo.connect(lfoGain).connect(n.filter.frequency);
+              n.noise.connect(n.filter).connect(n.mix);
+              n.noise.start();
+              n.lfo.start();
+            } else if (["matrix-pluck", "theme-matrix"].includes(style)) {
+              const scale = [0, 2, 4, 7, 9];
+              const base = 220;
+              const mkPluck = (freq) => {
+                const o = f.createOscillator();
+                const g = f.createGain();
+                o.type = "triangle";
+                o.frequency.value = freq;
+                g.gain.value = 0.0001;
+                o.connect(g).connect(n.mix);
+                const now = f.currentTime;
+                g.gain.setValueAtTime(0.0001, now);
+                g.gain.linearRampToValueAtTime(0.22, now + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+                o.start(now);
+                o.stop(now + 0.65);
+              };
+              const loop = () => {
+                for (let i = 0; i < 4; i++) {
+                  const note = scale[Math.floor(Math.random() * scale.length)];
+                  const freq = base * Math.pow(2, note / 12);
+                  setTimeout(() => mkPluck(freq), i * 180);
+                }
+                n.loopTid = setTimeout(loop, 1000);
+              };
+              loop();
+            } else if (["inferno-arp", "theme-inferno"].includes(style)) {
+              n.oscA = f.createOscillator();
+              n.oscA.type = "sawtooth";
+              const g = f.createGain();
+              g.gain.value = 0.08;
+              n.oscA.connect(g).connect(n.mix);
+              n.oscA.start();
+              const seq = [0, 3, 7, 10];
+              const base = 174.61;
+              const loop = () => {
+                const idx = Math.floor(f.currentTime * 6) % seq.length;
+                const freq = base * Math.pow(2, seq[idx] / 12);
+                n.oscA.frequency.setTargetAtTime(freq, f.currentTime, 0.02);
+                n.loopTid = setTimeout(loop, 160);
+              };
+              loop();
+            } else if (style === "binaural") {
+              n.oscA = f.createOscillator();
+              n.oscB = f.createOscillator();
+              n.oscA.type = "sine";
+              n.oscB.type = "sine";
+              const gA = f.createGain(),
+                gB = f.createGain();
+              gA.gain.value = 0.12;
+              gB.gain.value = 0.12;
+              n.oscA.frequency.value = 220;
+              n.oscB.frequency.value = 224;
+              n.oscA.connect(gA).connect(n.mix);
+              n.oscB.connect(gB).connect(n.mix);
+              n.oscA.start();
+              n.oscB.start();
+            }
+          }
+          setMusic(on) {
+            this.ensure();
+            this.musicOn = !!on;
+            this.musicGain.gain.setTargetAtTime(
+              this.musicOn ? 0.25 : 0,
+              this.ctx.currentTime,
+              0.3
+            );
+            store.set("musicOn", this.musicOn);
+          }
+          setSfxVol(v) {
+            this.ensure();
+            this.sfxVol = v;
+            this.sfxGain.gain.value = v;
+            store.set("sfxVolume", v);
+          }
+          note({ type = "sine", freq = 440, dur = 0.12, vol = 0.2 }) {
+            if (this.sfxVol === 0) return;
+            this.ensure();
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.type = type;
+            o.frequency.value = freq;
+            g.gain.value = vol;
+            o.connect(g).connect(this.sfxGain);
+            const t = this.ctx.currentTime;
+            g.gain.setValueAtTime(vol, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+            o.start(t);
+            o.stop(t + dur);
+          }
+          correct() {
+            this.note({ type: "sine", freq: 760, dur: 0.15, vol: 0.25 });
+            this.note({ type: "triangle", freq: 980, dur: 0.12, vol: 0.14 });
+          }
+          wrong() {
+            this.note({ type: "sawtooth", freq: 220, dur: 0.18, vol: 0.28 });
+          }
+          pop() {
+            this.note({ type: "sine", freq: 420, dur: 0.08, vol: 0.2 });
+          }
+        }
+        const audio = new AudioBus();
+
+        const THEMES = [
+          "theme-neon",
+          "theme-aurora",
+          "theme-inferno",
+          "theme-ocean",
+          "theme-sunset",
+          "theme-matrix",
+        ];
+        function setTheme(t) {
+          document.body.classList.remove(...THEMES);
+          document.body.classList.add(t);
+          store.set("theme", t);
+          if (store.get("musicStyle", "calm-pad") === "theme")
+            audio.setAmbientMode(t);
+        }
+        function cycleTheme() {
+          const i = THEMES.indexOf(store.get("theme", "theme-neon"));
+          setTheme(THEMES[(i + 1) % THEMES.length]);
+        }
+        if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
+        if (themeSelect)
+          themeSelect.addEventListener("change", (e) =>
+            setTheme(e.target.value)
+          );
+
+        function updateMuteAria() {
+          if (!muteBtn) return;
+          muteBtn.setAttribute(
+            "aria-pressed",
+            audio.sfxVol === 0 ? "true" : "false"
+          );
+          muteBtn.textContent =
+            audio.sfxVol === 0 && !audio.musicOn ? "🔇 Muted" : "🔊 Sound";
+        }
+        if (muteBtn)
+          muteBtn.addEventListener("click", () => {
+            audio.ensure();
+            const isAllMuted = audio.sfxVol === 0 && !audio.musicOn;
+            if (isAllMuted) {
+              const restoreVol = Number(store.get("sfxVolume", 0.6)) || 0.6;
+              audio.setSfxVol(restoreVol);
+              audio.setMusic(musicToggle ? musicToggle.checked : true);
+            } else {
+              audio.prevSfxVol =
+                audio.sfxVol || Number(store.get("sfxVolume", 0.6)) || 0.6;
+              audio.setSfxVol(0);
+              audio.setMusic(false);
+            }
+            updateMuteAria();
+            audio.pop();
+          });
+        if (sfxSelect)
+          sfxSelect.addEventListener("change", (e) => {
+            audio.setSfxVol(Number(e.target.value));
+            updateMuteAria();
+          });
+        if (musicStyle)
+          musicStyle.addEventListener("change", (e) => {
+            state.musicStyle = e.target.value;
+            store.set("musicStyle", state.musicStyle);
+            audio.setAmbientMode(
+              state.musicStyle === "theme"
+                ? store.get("theme", "theme-neon")
+                : state.musicStyle
+            );
+          });
+        if (musicToggle)
+          musicToggle.addEventListener("change", (e) => {
+            state.musicOn = e.target.checked;
+            store.set("musicOn", state.musicOn);
+            audio.setMusic(state.musicOn);
+            updateMuteAria();
+          });
+
+        if (qsSelect)
+          qsSelect.addEventListener("change", (e) => {
+            state.totalQ = Number(e.target.value);
+            store.set("qs", state.totalQ);
+            progressText.textContent = `0 / ${state.totalQ}`;
+          });
+        if (reducedMotion)
+          reducedMotion.addEventListener("change", (e) => {
+            state.reducedMotion = e.target.checked;
+            store.set("reducedMotion", state.reducedMotion);
+          });
+        if (explainOnWrong)
+          explainOnWrong.addEventListener("change", (e) => {
+            state.explainOnWrong = e.target.checked;
+            store.set("explainOnWrong", state.explainOnWrong);
+          });
+
+        if (language)
+          language.addEventListener("change", (e) => {
+            state.lang = e.target.value;
+            store.set("lang", state.lang);
+            loadModeHighs();
+          });
+        if (difficulty)
+          difficulty.addEventListener("change", (e) => {
+            state.difficulty = e.target.value;
+            store.set("difficulty", state.difficulty);
+            applyDifficulty();
+            loadModeHighs();
+          });
+        if (playerName)
+          playerName.addEventListener("input", (e) => {
+            state.name = e.target.value.trim().slice(0, 32);
+            playerTagName.textContent = state.name || "Guest";
+            store.set("name", state.name);
+          });
+        playerName.addEventListener("change", (e) => {
+          const n = e.target.value.trim().slice(0, 32);
+          if (n) {
+            state.name = n;
+            playerTagName.textContent = n;
+            store.set("name", n);
+            addNameToHistory(n);
+            renderNameSuggestions();
+          }
+        });
+        if (clearPlayerName)
+          clearPlayerName.addEventListener("click", () => {
+            playerName.value = "";
+            state.name = "";
+            playerTagName.textContent = "Guest";
+            store.set("name", "");
+          });
+
+        if (openSettingsHome)
+          openSettingsHome.addEventListener("click", () =>
+            openModal("settingsModal")
+          );
+
+        if (settingsBtn)
+          settingsBtn.addEventListener("click", () =>
+            openModal("settingsModal")
+          );
+        if (leaderboardBtnTop)
+          leaderboardBtnTop.addEventListener("click", () => {
+            renderLeaderboard();
+            openModal("leaderboardModal");
+          });
+        if (leaderboardClearBtn)
+          leaderboardClearBtn.addEventListener("click", () => {
+            setLocalLeaderboard([]);
+            renderLeaderboard();
+            updateDeviceBestFromLocal();
+          });
+        if (leaderboardSyncBtn)
+          leaderboardSyncBtn.addEventListener("click", () => {
+            renderLeaderboard();
+          });
+
+        function buildPool() {
+          const bank = window.__QB__[state.lang][state.difficulty] || [];
+          const base = bank.slice();
+          if (base.length === 0) return [];
+          const pool = [];
+          while (pool.length < state.totalQ) {
+            const chunk = base.slice();
+            for (let i = chunk.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [chunk[i], chunk[j]] = [chunk[j], chunk[i]];
+            }
+            pool.push(...chunk);
+          }
+          return pool.slice(0, state.totalQ);
+        }
+
+        function startQuizNow() {
+          state.lang = language.value;
+          state.difficulty = difficulty.value;
+          state.totalQ = Number(questionCount.value);
+          applyDifficulty();
+          resetRunState();
+          showQuiz();
+          nextQuestion();
+        }
+
+        if (startBtn)
+          startBtn.addEventListener("click", () => {
+            const n = (playerName.value || "").trim();
+            if (!n) {
+              openModal("nameModal");
+              return;
+            }
+            addNameToHistory(n);
+            renderNameSuggestions();
+            state.name = n;
+            playerTagName.textContent = n;
+            store.set("name", n);
+            startQuizNow();
+          });
+
+        // Name modal buttons — Guest starts immediately
+        if (nameModalSave)
+          nameModalSave.addEventListener("click", () => {
+            const n = nameModalInput.value.trim().slice(0, 32);
+            if (!n) return;
+            state.name = n;
+            playerTagName.textContent = n;
+            store.set("name", n);
+            addNameToHistory(n);
+            renderNameSuggestions();
+            closeModal("nameModal");
+            startQuizNow();
+          });
+        if (nameModalGuest)
+          nameModalGuest.addEventListener("click", () => {
+            state.name = "Guest";
+            playerTagName.textContent = "Guest";
+            store.set("name", "");
+            closeModal("nameModal");
+            startQuizNow();
+          });
+        if (clearNameModalInput)
+          clearNameModalInput.addEventListener("click", () => {
+            nameModalInput.value = "";
+          });
+
+        if (homeBtn)
+          homeBtn.addEventListener("click", () => {
+            stopTimer();
+            showHome();
+          });
+        if (reviewBtnTop)
+          reviewBtnTop.addEventListener("click", () =>
+            openModal("reviewModal")
+          );
+        if (leaderboardBtnFooter)
+          leaderboardBtnFooter.addEventListener("click", () => {
+            renderLeaderboard();
+            openModal("leaderboardModal");
+          });
+
+        function startTimer(seconds) {
+          stopTimer();
+          state.timeLeft = seconds;
+          const total = seconds;
+          updateTimerLine(total);
+          timerText.textContent = `Timer: ${state.timeLeft}s`;
+          timeFill.style.width = "100%";
+
+          state._timerInterval = setInterval(() => {
+            if (!state.running) {
+              stopTimer();
+              return;
+            }
+            state.timeLeft--;
+            const pct = Math.max(0, (state.timeLeft / total) * 100);
+            timerText.textContent = `Timer: ${state.timeLeft}s`;
+            timeFill.style.width = pct + "%";
+            updateTimerLine(total);
+
+            if (state.timeLeft <= 0) {
+              stopTimer();
+              handleAnswer(-1);
+            }
+          }, 1000);
+        }
+        function stopTimer() {
+          if (state._timerInterval) {
+            clearInterval(state._timerInterval);
+            state._timerInterval = null;
+          }
+        }
+        function updateTimerLine(total) {
+          const pct = Math.max(0, (state.timeLeft / total) * 100);
+          timerLineFill.style.width = pct + "%";
+          if (pct > 60) timerLineFill.style.backgroundColor = "#35f3a3";
+          else if (pct > 30) timerLineFill.style.backgroundColor = "#ffd166";
+          else timerLineFill.style.backgroundColor = "#ff5876";
+        }
+
+        function resetRunState() {
+          state.running = true;
+          state.score = 0;
+          state.streak = 0;
+          state.maxStreak = 0;
+          state.correctCount = 0;
+          state.lifelineUsed = false;
+          state.pool = buildPool();
+          state.mainIdx = 0;
+          state.wrongQueue = [];
+          state.awaitingNext = false;
+          document.getElementById("explainMount").innerHTML = "";
+          progressText.textContent = `0 / ${state.totalQ}`;
+          reviewBtnTop.disabled = true;
+          reviewBtnFooter.disabled = true;
+          lifelineBtn.disabled = true;
+        }
+
+        function renderQuestion(q) {
+          const qEl = document.getElementById("question");
+          const optGrid = document.getElementById("options");
+          const mount = document.getElementById("explainMount");
+
+          qEl.textContent = q.q;
+          optGrid.innerHTML = "";
+          mount.innerHTML = ""; // clear any prior explanation
+          state.awaitingNext = false;
+
+          q.opts.forEach((opt, i) => {
+            const btn = document.createElement("div");
+            btn.className = "option";
+            btn.setAttribute("role", "option");
+            btn.innerHTML = `<span class="kbd">${
+              i + 1
+            }</span> <span>${opt}</span>`;
+            btn.addEventListener("click", () => handleAnswer(i));
+            optGrid.appendChild(btn);
+          });
+        }
+
+        function nextQuestion() {
+          if (!state.running) return;
+
+          // Insert a wrong re-ask after every 3 main questions
+          let useWrong = false;
+          if (
+            state.mainIdx > 0 &&
+            state.mainIdx % 3 === 0 &&
+            state.wrongQueue.length > 0
+          )
+            useWrong = true;
+
+          if (useWrong) {
+            state.current = state.wrongQueue.shift();
+            renderQuestion(state.current);
+          } else {
+            if (state.mainIdx >= state.pool.length) {
+              if (state.wrongQueue.length > 0) {
+                state.current = state.wrongQueue.shift();
+                renderQuestion(state.current);
+              } else {
+                return endQuiz();
+              }
+            } else {
+              state.current = state.pool[state.mainIdx];
+              renderQuestion(state.current);
+              state.mainIdx++;
+              progressText.textContent = `${state.mainIdx} / ${state.totalQ}`;
+            }
+          }
+
+          timerText.textContent = `Timer: ${state.timePerQ}s`;
+          startTimer(state.timePerQ);
+
+          const allowsLifeline = state.difficulty !== "hard";
+          lifelineBtn.disabled = !(
+            allowsLifeline &&
+            state.correctCount >= 5 &&
+            !state.lifelineUsed
+          );
+        }
+
+        function handleAnswer(i) {
+          if (state.awaitingNext) return; // prevent multi-trigger while waiting Next
+          stopTimer();
+          const optGrid = document.getElementById("options");
+          const opts = optGrid.querySelectorAll(".option");
+
+          // mark visual
+          opts.forEach((o, idx) => {
+            if (idx === state.current.a) o.classList.add("correct");
+            else if (idx === i) o.classList.add("wrong");
+            o.classList.add("disabled");
+          });
+
+          if (i === state.current.a) {
+            state.score += 4;
+            state.streak++;
+            state.maxStreak = Math.max(state.maxStreak, state.streak);
+            state.correctCount++;
+            audio.correct();
+
+            // Auto-advance quickly on correct (no explanation)
+            setTimeout(() => {
+              opts.forEach((o) => o.classList.remove("disabled"));
+              nextQuestion();
+            }, 700);
+          } else {
+            // wrong or timeout
+            state.score -= 1;
+            state.streak = 0;
+            audio.wrong();
+            state.wrongQueue.push(state.current);
+
+            if (state.explainOnWrong) {
+              showExplanationAndWaitNext(i);
+            } else {
+              // no explanation: brief pause then continue
+              setTimeout(() => {
+                opts.forEach((o) => o.classList.remove("disabled"));
+                nextQuestion();
+              }, 700);
+            }
+          }
+
+          document.getElementById("score").textContent = state.score;
+          document.getElementById("streak").textContent = state.streak;
+
+          const allowsLifeline = state.difficulty !== "hard";
+          lifelineBtn.disabled = !(
+            allowsLifeline &&
+            state.correctCount >= 5 &&
+            !state.lifelineUsed
+          );
+        }
+
+        // Explanation only on wrong or timeout, with Next button to proceed
+        function showExplanationAndWaitNext(chosenIndex) {
+          const mount = document.getElementById("explainMount");
+          const correctText = state.current.opts[state.current.a];
+          const why = state.current.exp;
+
+          mount.innerHTML = `
+            <div class="explain">
+              <div class="title">Explanation</div>
+              <div class="correct">Correct: ${escapeHtml(correctText)}</div>
+              <div class="why">${escapeHtml(why)}</div>
+              <div class="controls">
+                <button id="nextBtnExplain" class="btn btn-primary">Next ▶</button>
+              </div>
+            </div>
+          `;
+          state.awaitingNext = true;
+          const nextBtn = document.getElementById("nextBtnExplain");
+          nextBtn.addEventListener("click", () => {
+            state.awaitingNext = false;
+            mount.innerHTML = "";
+            nextQuestion();
+          });
+        }
+
+        // 50–50 Lifeline
+        lifelineBtn.addEventListener("click", () => {
+          if (lifelineBtn.disabled) return;
+          const optGrid = document.getElementById("options");
+          const opts = Array.from(optGrid.querySelectorAll(".option"));
+          if (!state.current || state.lifelineUsed || opts.length < 3) return;
+
+          const correctIndex = state.current.a;
+          const wrongIndices = [];
+          opts.forEach((_, idx) => {
+            if (idx !== correctIndex) wrongIndices.push(idx);
+          });
+          for (let i = wrongIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [wrongIndices[i], wrongIndices[j]] = [
+              wrongIndices[j],
+              wrongIndices[i],
+            ];
+          }
+          const toRemove = wrongIndices.slice(0, 2);
+          toRemove.forEach((idx) => {
+            const node = opts[idx];
+            if (node) {
+              node.style.visibility = "hidden";
+              node.style.pointerEvents = "none";
+              node.style.height = "0px";
+              node.style.margin = "0";
+              node.style.padding = "0";
+            }
+          });
+
+          state.lifelineUsed = true;
+          lifelineBtn.disabled = true;
+          audio.pop();
+        });
+
+        function endQuiz() {
+          state.running = false;
+          stopTimer();
+
+          saveModeHighs(state.score, state.maxStreak);
+          loadModeHighs();
+
+          persistLeaderboard();
+          renderLeaderboard();
+          openModal("leaderboardModal");
+
+          const played = Number(store.get("totalPlayed", 0)) + 1;
+          store.set("totalPlayed", played);
+          totalPlayedEl.textContent = played;
+
+          reviewBtnTop.disabled = false;
+          reviewBtnFooter.disabled = false;
+          buildReview();
+        }
+
+        function buildReview() {
+          const body = document.getElementById("reviewBody");
+          if (!body) return;
+          body.innerHTML = `
+            <div><strong>Player:</strong> ${escapeHtml(
+              state.name || "Guest"
+            )}</div>
+            <div><strong>Language:</strong> ${escapeHtml(state.lang)}</div>
+            <div><strong>Difficulty:</strong> ${escapeHtml(
+              state.difficulty
+            )}</div>
+            <div><strong>Score:</strong> ${state.score}</div>
+            <div><strong>Best streak:</strong> ${state.maxStreak}</div>
+            <div><strong>Total selected questions:</strong> ${
+              state.totalQ
+            }</div>
+          `;
+        }
+
+        // Keyboard shortcuts: 1–4 answers, P pause, L lifeline, Enter to Next
+        document.addEventListener("keydown", (e) => {
+          if (!state.running) return;
+
+          const k = e.key.toLowerCase();
+          if (["1", "2", "3", "4"].includes(e.key)) {
+            if (state.awaitingNext) return;
+            const idx = Number(e.key) - 1;
+            const optGrid = document.getElementById("options");
+            const btn = optGrid.children[idx];
+            if (
+              btn &&
+              btn.style.visibility !== "hidden" &&
+              !btn.classList.contains("disabled")
+            )
+              btn.click();
+          } else if (k === "p") {
+            if (state._timerInterval) {
+              stopTimer();
+              pauseBtn.textContent = "▶ Resume";
+            } else {
+              startTimer(state.timePerQ);
+              pauseBtn.textContent = "⏸ Pause";
+            }
+          } else if (k === "l") {
+            if (!lifelineBtn.disabled) lifelineBtn.click();
+          } else if (k === "enter") {
+            if (state.awaitingNext) {
+              const btn = document.getElementById("nextBtnExplain");
+              if (btn) btn.click();
+            }
+          }
+        });
+
+        // Initialize
+        showHome();
+        applyDifficulty();
+        updateMuteAria();
+      })();
+    </script>
+  </body>
+</html>
